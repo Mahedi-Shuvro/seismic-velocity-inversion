@@ -26,12 +26,13 @@ The best model is selected and submitted to the **Speed & Structure Challenge**,
 ## 📁 Repository Structure
 
 seismic-velocity-inversion/
-├── models/ # Model architectures (U-Net, U-Net++, SCU-Net++, etc.)
-├── datasets/ # PyTorch Dataset class for training/test data
-├── scripts/ # Training, evaluation, and submission scripts
-├── utils/ # Metrics, visualization, submission helpers
-├── results/ # Visualizations, saved predictions, plots
-├── requirements.txt # Required packages
+├── models/ # U-Net, U-Net++, SCU-Net++, DeepLabV3+, and custom models
+├── datasets/ # PyTorch Dataset class and data loading utilities
+├── scripts/ # Training, evaluation, and submission pipeline
+├── utils/ # MAPE calculation, visualization, and submission helpers
+├── results/ # Prediction outputs, visualizations, logs
+├── checkpoints/ # Saved model weights (best performers)
+├── requirements.txt # Python package dependencies
 └── README.md # Project documentation
 
 
@@ -108,12 +109,25 @@ The `.npz` submission format and scoring logic follow the official evaluation pr
 
 | Model          | Leaderboard MAPE ↓ | Notes                     |
 |----------------|---------------------|---------------------------|
-| U-Net          |                     | Baseline segmentation     |
-| U-Net++        |                     | Nested skip connections   |
-| DeepLabV3+     |                     | Multi-scale context       |
-| SCU-Net++      |                     | Lightweight + accurate    |
-| 🔥 Custom Model | **0.0693**         | Best performer            |
+| U-Net          |                     |                           |
+| U-Net++        |                     |                           |
+| DeepLabV3+     |                     |                           |
+| SCU-Net++      |                     |                           |
+| 🔥 Custom Model | **0.00**           |                           |
 
 > 📌 MAPE = Mean Absolute Percentage Error (lower is better)
 >  
 > 📤 All scores are based on official ThinkOnward leaderboard submissions.
+
+## 💾 Model Checkpoints
+
+Pretrained weights for our best-performing model are available:
+
+- 📁 [`custom_scu_netpp_best.pth`](models/checkpoints/custom_scu_netpp_best.pth)
+
+### 🔧 Usage
+```python
+model = CustomSCUNetPP()
+model.load_state_dict(torch.load("models/checkpoints/custom_scu_netpp_best.pth"))
+model.eval()
+
