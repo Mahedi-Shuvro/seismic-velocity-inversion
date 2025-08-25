@@ -15,28 +15,25 @@ IEEE Transactions on Geoscience and Remote Sensing (TGRS)
 
 This repository benchmarks several deep segmentation architectures for seismic velocity inversion using synthetic shot gather data. The following models are evaluated:
 
-- 🧱 U-Net  
-- 🔁 U-Net++  
-- 🔍 SCU-Net++  
-- 🌐 DeepLabV3  
-- 🛠️ Custom optimized DeepLabV3+ model (best performer)
-
-The final model is submitted to the **Speed & Structure Challenge**, hosted by [ThinkOnward](https://thinkonward.com).
+- 🧱 **U-Net**  
+- 🔁 **U-Net++**  
+- 🌐 **DeepLabV3+**  
+- 🛠️ **SeismoLabV3+** — Custom optimized DeepLabV3+ model, best performer
 
 ---
 
 ## 📁 Repository Structure
 
-seismic-velocity-inversion/
-├── models/         # U-Net, U-Net++, SCU-Net++, DeepLabV3+, and custom models
-├── datasets/       # PyTorch Dataset class and data loading utilities
-├── scripts/        # Training, evaluation, and submission pipeline
-├── utils/          # MAPE calculation, visualization, and submission helpers
-├── results/        # Prediction outputs, visualizations, logs
-├── checkpoints/    # Saved model weights (best performers)
-├── requirements.txt # Python package dependencies
-└── README.md       # Project documentation
-
+- **`utils.py`** — Utility functions provided by ThinkOnward for preprocessing and evaluation  
+- **`SeismoLabV3+.ipynb`** — Main solution notebook implementing the optimized DeepLabV3+ segmentation network  
+- **`SeismoLabV3+.pth`** — Pretrained weights for the top-performing model  
+- **`README.md`** — Project documentation  
+- **`LICENSE`** — License for this work  
+- **`benchmarks/`** — Contains baseline and comparison models with consistent hyperparameter settings:  
+  - `UNet_seismic.ipynb`  
+  - `UNet++_seismic.ipynb`  
+  - `DeepLabV3+_seismic.ipynb`  
+  - `utils.py`
 
 ---
 
@@ -52,21 +49,19 @@ We use a **synthetic dataset** of shot gather recordings and paired ground truth
 
 #### 🔹 Input (for each sample)
 Five synthetic seismic shot gather files:
-
 - `receiver_data_src_1.npy`  
 - `receiver_data_src_75.npy`  
 - `receiver_data_src_150.npy`  
 - `receiver_data_src_225.npy`  
-- `receiver_data_src_300.npy`
+- `receiver_data_src_300.npy`  
 
 Shape: `(300, 1259)`  
 - 300 = time steps  
-- 1259 = receiver channels
+- 1259 = receiver channels  
 
-#### 🔹 Ground Truth (Training Only)
-
+#### 🔹 Ground Truth (Training)
 - `vp_model.npy`: Velocity model of shape `(300, 1259)`  
-  Represents P-wave speed (in m/s) at each subsurface location.
+  Represents P-wave speed (m/s) at each subsurface location.  
 
 > ⚠️ Test samples include only the receiver files and are used for leaderboard submission.
 
@@ -78,95 +73,117 @@ This dataset simulates marine seismic surveys, where an energy source emits acou
 
 ---
 
-## 🛠️ Custom Model Architecture (Best Performer)
+## 🛠️ Custom Model Architecture (Best Performer — SeismoLabV3+)
 
-Our top-performing model is an optimized variant of **DeepLabV3+**, enhanced through architectural tuning and encoder optimization.
+The top-performing model is **SeismoLabV3+**, an optimized variant of **DeepLabV3+**, enhanced through architectural tuning and encoder optimization.
 
 ### 🔧 Key Enhancements
-
-- 🔁 **Backbone**: ResNet50  
+- 🔁 **Backbone**: ResNeXt50_32x4d  
 - ⛓️ **Encoder Output Stride**: 16  
 - 🎛️ **Atrous Rates**: (12, 24, 36)  
 - 🧠 **ASPP Dropout**: 0.5  
-- 📐 **Output Resolution**: Native (300×1259), no spatial downsampling
+- 📐 **Output Resolution**: Native (300×1259), no spatial downsampling  
 
 ### ⚙️ Training Configuration
-
-| Setting              | Value                     |
-|----------------------|---------------------------|
-| Optimizer            | AdamW                     |
-| Learning Rate        | Tuned per backbone        |
-| Batch Size           | 4                         |
-| Epochs               | 50                        |
+| Setting              | Value                                  |
+|----------------------|----------------------------------------|
+| Optimizer            | AdamW                                 |
+| Learning Rate        | Tuned per backbone                     |
+| Batch Size           | 4                                     |
+| Epochs               | 50                                    |
 | Loss Function        | Mean Absolute Percentage Error (MAPE) |
-| LR Scheduler         | ReduceLROnPlateau         |
-| Validation Split     | 20% (random seed = 42)    |
-   |
+| LR Scheduler         | ReduceLROnPlateau                     |
+| Validation Split     | 20% (random seed = 42)                |
 
 ---
 
+## 🛠️ Benchmark Architectures
+
+### 🔹 U-Net (Baseline)
+Classical **encoder–decoder** with skip connections (`smp.Unet`). Strong baseline for dense regression tasks.  
+
+**Key Settings**  
+- 🔁 Backbone: ResNet50 (ImageNet-pretrained)  
+- ⛓️ Encoder Depth: 5 (input padded to 320×1280)  
+- 🎛️ Decoder Channels: (256, 128, 64, 32, 16)  
+- 📐 Output Resolution: Cropped back to (300×1259)  
+
+---
+
+### 🔹 U-Net++ (Nested Skip Connections)
+A nested U-Net variant (`smp.UnetPlusPlus`) with **dense skip pathways** for finer spatial detail recovery.  
+
+**Key Settings**  
+- 🔁 Backbone: ResNet50 (ImageNet-pretrained)  
+- ⛓️ Encoder Depth: 5 (input padded to 320×1280)  
+- 🎛️ Decoder Channels: (256, 128, 64, 32, 16)  
+- 🧩 Skip Connections: Nested dense skip pathways  
+- 📐 Output Resolution: Cropped back to (300×1259)  
+
+---
+
+### 🔹 DeepLabV3+
+Standard **DeepLabV3+** segmentation network (`smp.DeepLabV3Plus`).  
+
+**Key Settings**  
+- 🔁 Backbone: ResNet50  
+- ⛓️ Encoder Output Stride: 16  
+- 🎛️ Atrous Rates: (12, 24, 36)  
+- 🧠 ASPP Dropout: 0.5  
+- 📐 Output Resolution: Native (300×1259)  
+
+---
 
 ## 🧪 Benchmarking Results
+
 ### 📊 Evaluation Metric: Mean Absolute Percentage Error (MAPE)
 
-In this project, model performance is evaluated using the **Mean Absolute Percentage Error (MAPE)**.  
-MAPE measures the average magnitude of errors between predicted and actual values, expressed as a percentage.  
+In this project, model performance is evaluated using **Mean Absolute Percentage Error (MAPE)**.  
 Lower values indicate higher accuracy, with **0% representing a perfect prediction**.
-
-**Formula:**
 
 \[
 \text{MAPE} = \frac{100\%}{N} \sum_{i=1}^{N} \left| \frac{A_i - F_i}{A_i} \right|
 \]
 
-Where:
-- \( N \) — number of data points  
-- \( A_i \) — actual (ground truth) value  
-- \( F_i \) — forecasted (predicted) value  
-
 **Why MAPE?**
-- **Interpretability**: Errors are expressed as percentages, making them easy to understand.  
-- **Suitability**: Ideal for regression-based velocity model predictions in seismic inversion.
-- 
-All models were trained on the **2,000-sample training set** and evaluated on:  
-1. **Internal Split:** 60% train / 20% validation / 20% test  
-2. **Official Leaderboard:** 150 hidden test samples, scored by **Mean Absolute Percentage Error (MAPE)** 
+- Easy to interpret: errors expressed as percentages  
+- Well-suited for regression-based velocity model predictions in seismic inversion  
+
+---
 
 ### **Table 1 – Internal 20% Test Split (60% Train / 20% Validation / 20% Test)**
 
 | Model        | Backbone         | Pre-trained Weights | MAPE    |
 |--------------|------------------|---------------------|---------|
-| U-Net        | ResNet50         | ImageNet            |  |
-| U-Net++      | ResNet50         | ImageNet            |  |
-| DeepLabV3+   | ResNet50         | ImageNet            |  |
-| DeepLabV3+   | ResNeXt50_32x4d  | ImageNet            |  |
-| DeepLabV3+   | ResNeXt50_32x4d  | SWSL                |  |
-| DeepLabV3+   | ResNeXt50_32x4d  | SSL                 |  |
+| U-Net        | ResNet50         | ImageNet            | 0.03084 |
+| U-Net++      | ResNet50         | ImageNet            | 0.03049 |
+| DeepLabV3+   | ResNet50         | ImageNet            | 0.03038 |
+| SeismoLabV3+ | ResNeXt50_32x4d  | ImageNet            | 0.03025 |
 
 ---
 
-### **Table 2 – Official ThinkOnward Leaderboard Results**
+### **Table 2 – Official ThinkOnward Leaderboard Results (80% Train / 20% Validation on test set)**
 
 | Model        | Backbone         | Pre-trained Weights | MAPE (Leaderboard) |
 |--------------|------------------|---------------------|--------------------|
-| U-Net        | ResNet50         | ImageNet            | --                 |
-| U-Net++      | ResNet50         | ImageNet            | --                 |
-| DeepLabV3+   | ResNet50         | ImageNet            | --                 |
-| DeepLabV3+   | ResNeXt50_32x4d  | ImageNet            | --                 |
-| DeepLabV3+   | ResNeXt50_32x4d  | SWSL                | --                 |
-| DeepLabV3+   | ResNeXt50_32x4d  | SSL                 | --                 |
+| U-Net        | ResNet50         | ImageNet            | 0.033172           |
+| U-Net++      | ResNet50         | ImageNet            | 0.032766           |
+| DeepLabV3+   | ResNet50         | ImageNet            | 0.031762           |
+| SeismoLabV3+ | ResNeXt50_32x4d  | ImageNet            | 0.031246           |
+
+---
 
 ## 💾 Model Checkpoints
 
-Pretrained weights for the top-performing model:
+Pretrained weights for the top-performing model are provided in the repository root:
 
-- 📁 [`custom_model_best.pth`](models/checkpoints/custom_model_best.pth) *(update name if needed)*
+- 📁 [`SeismoLabV3+.pth`](SeismoLabV3+.pth)
 
 ---
 
 ## 📎 License & Attribution
 
-This dataset and benchmark are part of the [Speed & Structure Challenge 2025](https://thinkonward.com/app/c/challenges/speed-and-structure/data) by [ThinkOnward](https://thinkonward.com).
+This dataset and benchmark are part of the [Speed & Structure Challenge 2025](https://thinkonward.com/app/c/challenges/speed-and-structure/data) by [ThinkOnward](https://thinkonward.com).  
 
 Licensed under the **[Creative Commons Attribution 4.0 License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)**.
 
@@ -174,17 +191,19 @@ Licensed under the **[Creative Commons Attribution 4.0 License (CC BY 4.0)](http
 
 ## 📬 Contact
 
-## 📬 Contact
-
 **Mahedi Hasan**  
 📧 Email: [mahedishuvro2030@gmail.com](mailto:mahedishuvro2030@gmail.com)  
 📘 LinkedIn: [linkedin.com/in/mahedi-hasan-b63394243](https://www.linkedin.com/in/mahedi-hasan-b63394243)  
-📍 Location: Launceston, Tasmania, Australia
+📍 Launceston, Tasmania, Australia
 
 ---
-**Reference:**  
-Arize AI. *Mean Absolute Percentage Error (MAPE): What You Need to Know*. 2023.  
-Available at: [https://arize.com/blog-course/mean-absolute-percentage-error-mape-what-you-need-to-know/](https://arize.com/blog-course/mean-absolute-percentage-error-mape-what-you-need-to-know/)  
-Accessed: 13 Aug 2025.
+
+## 📚 References
+
+- Arize AI. *Mean Absolute Percentage Error (MAPE): What You Need to Know*. 2023. [Read here](https://arize.com/blog-course/mean-absolute-percentage-error-mape-what-you-need-to-know/)  
+- Iakubovskii, Pavel. *Segmentation Models Pytorch*. GitHub repository, 2019. [https://github.com/qubvel/segmentation_models.pytorch](https://github.com/qubvel/segmentation_models.pytorch)  
+
+
+
 
 
