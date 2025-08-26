@@ -1,19 +1,12 @@
-# 🌍 Benchmarking Deep Segmentation Networks for Seismic Velocity Inversion
+# 🌍 Seismic Velocity Inversion with Deep Segmentation Networks  
 
-**📄 Paper Title**  
-*Seismic Velocity Inversion from Shot Gathers Using Deep Segmentation Networks: Benchmarking U-Net Variants and an Optimized DeepLabV3+ Model*
+This repository contains the official implementation and benchmarking code for the paper:  
 
-**🎯 Goal**  
-Develop and benchmark deep learning models to reconstruct subsurface velocity maps from synthetic seismic shot gathers.
-
-**📌 Target Journal**  
-IEEE Transactions on Geoscience and Remote Sensing (TGRS)
-
----
+**"Seismic Velocity Inversion from Shot Gathers Using Deep Segmentation Networks: Benchmarking U-Net Variants and SeismoLabV3+ (optimized variant of DeeplabV3+" (Submitted to IEEE TGRS, 2025)** 
 
 ## 📦 Overview
 
-This repository benchmarks several deep segmentation architectures for seismic velocity inversion using synthetic shot gather data. The following models are evaluated:
+We benchmark several state-of-the-art encoder–decoder architectures for **seismic velocity inversion** which includes U-Net, U-Net++, and our optimized variant of DeepLabV3+, named **SeismoLabV3+**. 
 
 - 🧱 **U-Net**  
 - 🔁 **U-Net++**  
