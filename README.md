@@ -129,18 +129,20 @@ Standard **DeepLabV3+** segmentation network (`smp.DeepLabV3Plus`).
 
 ## 🧪 Benchmarking Results
 
-### 📊 Evaluation Metric: Mean Absolute Percentage Error (MAPE)
+### 📊 Evaluation Metric — Mean Absolute Percentage Error (MAPE)
 
-In this project, model performance is evaluated using **Mean Absolute Percentage Error (MAPE)**.  
+Model performance in this project is evaluated using **Mean Absolute Percentage Error (MAPE)**.  
 Lower values indicate higher accuracy, with **0% representing a perfect prediction**.
 
-\[
+$$
 \text{MAPE} = \frac{100\%}{N} \sum_{i=1}^{N} \left| \frac{A_i - F_i}{A_i} \right|
-\]
+$$
 
-**Why MAPE?**
-- Easy to interpret: errors expressed as percentages  
-- Well-suited for regression-based velocity model predictions in seismic inversion  
+#### 🔎 Why MAPE?
+- 📏 **Interpretability** — errors are expressed as percentages, making them easy to understand.  
+- 🌍 **Applicability** — well-suited for regression-based velocity model predictions in seismic inversion.  
+- 🎯 **Comparability** — provides a consistent metric to benchmark multiple architectures (DeepLabV3+, U-Net, U-Net++, SCUNet++).  
+  
 
 ---
 
