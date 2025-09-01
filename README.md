@@ -2,7 +2,7 @@
 
 This repository contains the official implementation and benchmarking code for the paper:  
 
-**"Seismic Velocity Inversion from Shot Gathers Using Deep Segmentation Networks: Benchmarking U-Net Variants and SeismoLabV3+ submitted to IEEE TGRS, 2025** 
+**Seismic Velocity Inversion from Shot Gathers Using Deep Segmentation Networks: Benchmarking U-Net Variants and SeismoLabV3+ submitted to IEEE TGRS, 2025** 
 
 ## 📦 Overview
 
